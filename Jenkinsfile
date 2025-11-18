@@ -1,54 +1,29 @@
 pipeline {
-    agent any
-
-    environment {
-        APP_NAME = 'my-app'
-        DOCKER_USER = 'nathansii'
-    }
-
-    stages {
-
-        stage('Login Docker') {
-            steps {
-                withCredentials([string(
-                    credentialsId: 'poste-08_DOCKER_PASSWORD',
-                    variable: 'poste-08_DOCKER_PASSWORD'
-                )]) {
-                    sh '''
-                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                    '''
-                }
-            }
-        }
-
-        stage('Build') {
-            steps {
-                script {
-                    def buildVersion = "1.0.${env.BUILD_NUMBER}"
-                    echo "Building ${APP_NAME} version ${buildVersion}"
-                }
-            }
-        }
-
-        stage('Test') {
-            steps {
-                echo "Testing ${APP_NAME}..."
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                script {
-                    def buildVersion = "1.0.${env.BUILD_NUMBER}"
-                    echo "Deploying ${APP_NAME} version ${buildVersion}"
-                }
-            }
-        }
-    }
-
-    post {
-        always {
-            sh 'docker logout || true'
-        }
-    }
+ agent any
+ stages {
+ stage('Compilation & Tests') {
+ parallel {
+ stage('Build') {
+ steps {
+ echo "Compilation en cours..."
+ sh 'sleep 3' // Simulation du build
+ }
+ }
+ stage('Tests Unitaires') {
+ steps {
+ echo "Exécution des tests unitaires..."
+ sh 'sleep 2' // Simulation des tests
+unitaires
+ }
+ }
+ stage('Analyse Qualité') {
+ steps {
+ echo "Analyse statique du code avec
+SonarQube..."
+ sh 'sleep 4' // Simulation de l’analyse
+ }
+ }
+ }
+ }
+ }
 }
