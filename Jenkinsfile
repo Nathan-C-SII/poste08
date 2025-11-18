@@ -3,9 +3,24 @@ pipeline {
 
     environment {
         APP_NAME = 'my-app'
+        DOCKER_USER = 'mon-utilisateur-docker'
     }
 
     stages {
+
+        stage('Login Docker') {
+            steps {
+                withCredentials([string(
+                    credentialsId: 'DOCKER_PASSWORD',
+                    variable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    '''
+                }
+            }
+        }
+
         stage('Build') {
             steps {
                 script {
@@ -30,5 +45,10 @@ pipeline {
             }
         }
     }
-}
 
+    post {
+        always {
+            sh 'docker logout || true'
+        }
+    }
+}
